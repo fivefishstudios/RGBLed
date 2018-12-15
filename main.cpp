@@ -1,6 +1,7 @@
 /* 
   Demo program combining Multiplexed 7-segment LED Display and LCD Display.
   Push-button Switch input via Interrupt subroutines.
+  + playing with RGB discrete LEDs
 */
 #include "mbed.h"
 #include "LCD_DISCO_F429ZI.h"
@@ -25,18 +26,18 @@ PwmOut      RGBLED_blu(PA_5);
 void PBIntHandler(){
   led = !led;  // toggle LED
   if (led){
-    lcd.DisplayStringAt(0, 100, (uint8_t *) "  Interrupt!  ", CENTER_MODE);  // will this work?
+    lcd.DisplayStringAt(0, 150, (uint8_t *) "  Interrupt!  ", CENTER_MODE);  // will this work?
   } else {
-    lcd.DisplayStringAt(0, 100, (uint8_t *) " Another IRQ! ", CENTER_MODE);  // will this work?
+    lcd.DisplayStringAt(0, 150, (uint8_t *) " Another IRQ! ", CENTER_MODE);  // will this work?
   }
 }
 
 /* intensity in % percentage */
 void SetLEDBrightness(PwmOut led, float intensity) {
-	float period = 1/60.0f;
+	float period = 0.000009f;
 	led.period(period);
 	led.pulsewidth(period * (intensity / 100));
-	wait(0.002);
+	wait(0.001);
 }
 
 #define DISPLAY_DELAY 0.001f 
@@ -151,9 +152,9 @@ int main() {
   Button.rise(&PBIntHandler);
 
   // setup LCD Display
-  lcd.Clear(0xFF0000CC);
+  lcd.Clear(0xFF000011);
   lcd.SetFont(&Font24);
-  lcd.SetBackColor(0xFF0000CC); // text background color
+  lcd.SetBackColor(0xFF000011); // text background color
   lcd.SetTextColor(LCD_COLOR_WHITE); // text foreground color
   char buf[50];   // buffer for integer to text conversion 
 
@@ -161,17 +162,39 @@ int main() {
   Display_Clear(); 	
   lcd.DisplayStringAt(0, 200, (uint8_t *) " by owel.codes ", CENTER_MODE);  // will this work?
 
-  // let's just light up RGB Led for now
-  SetLEDBrightness(RGBLED_red, 100);
-  SetLEDBrightness(RGBLED_grn, 100);
-  SetLEDBrightness(RGBLED_blu, 100);
-
+  int r,g,b;
+  long ctr = 1;
   // start of main loop 
   while(true){
-    for (int i=0; i<1000; i++){
-      sprintf(buf, "Counting %03d ", i);  // format/convert integer to 
-      lcd.DisplayStringAt(10, 50, (uint8_t *) buf, CENTER_MODE);
-      Display_Number(i, 50); // Number to display, Duration_ms
+    for (r=0; r<100; r+=10){
+      for (g=5; g<100; g+=20){
+        for (b=0; b<100; b+=15){        
+ 
+          ctr++;  // increment counter for display by 7-segment
+          if (ctr>999){
+            ctr = 0;
+          }
+
+          SetLEDBrightness(RGBLED_red, r);
+          SetLEDBrightness(RGBLED_grn, g);
+          SetLEDBrightness(RGBLED_blu, b);
+
+          sprintf(buf, "Red %03d ", r);  
+          lcd.SetTextColor(LCD_COLOR_RED); 
+          lcd.DisplayStringAt(10, 50, (uint8_t *) buf, CENTER_MODE);
+
+          sprintf(buf, "Green %03d ", g);  
+          lcd.SetTextColor(LCD_COLOR_GREEN);
+          lcd.DisplayStringAt(10, 70, (uint8_t *) buf, CENTER_MODE);
+
+          sprintf(buf, "Blue %03d ", b); 
+          lcd.SetTextColor(LCD_COLOR_WHITE);
+          lcd.DisplayStringAt(10, 90, (uint8_t *) buf, CENTER_MODE);
+
+          Display_Number(ctr, 250); // Number to display, Duration_ms
+
+        }
+      }
     }
   }
 
