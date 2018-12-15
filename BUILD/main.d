@@ -231,4 +231,5 @@ BUILD/main.o: main.cpp BUILD/mbed_config.h mbed-os/mbed.h \
  BSP_DISCO_F429ZI/Drivers/BSP/STM32F429I-Discovery/stm32f429i_discovery_sdram.h \
  BSP_DISCO_F429ZI/Utilities/Fonts/../Fonts/fonts.h \
  BSP_DISCO_F429ZI/Drivers/BSP/STM32F429I-Discovery/../Components/ili9341/ili9341.h \
- BSP_DISCO_F429ZI/Drivers/BSP/STM32F429I-Discovery/../Components/ili9341/../Common/lcd.h
+ BSP_DISCO_F429ZI/Drivers/BSP/STM32F429I-Discovery/../Components/ili9341/../Common/lcd.h \
+ clock.h
